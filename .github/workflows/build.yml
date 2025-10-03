@@ -1,0 +1,43 @@
+name: Build GorillaInfoWatch
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      # 1. Check out your repository
+      - uses: actions/checkout@v3
+
+      # 2. Set up .NET SDK
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: 6.0.x
+
+      # 3. Restore dependencies
+      - name: Restore dependencies
+        run: dotnet restore
+
+      # 4. Build the project in Release mode
+      - name: Build
+        run: dotnet build -c Release
+
+      # 5. Copy the compiled DLL to an artifacts folder
+      - name: Prepare artifact
+        run: |
+          mkdir artifacts
+          cp ./GorillaInfoWatch/bin/Release/net6.0/*.dll artifacts/
+        shell: bash
+
+      # 6. Upload the DLL as a downloadable artifact
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: GorillaInfoWatchDLL
+          path: artifacts/
